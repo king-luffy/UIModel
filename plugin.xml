@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="uimodel.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="UIModelPerspective"
+            class="uimodel.Perspective"
+            id="uimodel.Perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="OutputExplorer"
+            class="uimodel.views.OutputExplorerView"
+            id="uimodel.views.OutputExplorerView">
+      </view>
+      <view
+            class="uimodel.views.ConsoleView"
+            id="uimodel.views.ConsoleView"
+            name="Console">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uimodel.editor.SingleBcnGenEditPart"
+            default="false"
+            id="uimodel.editor.SingleBcnGenEditPart"
+            name="BcnGen">
+      </editor>
+      <editor
+            class="uimodel.editor.BmvfGenEditPart"
+            default="false"
+            id="uimodel.editor.BmvfGenEditPart"
+            name="BMVFGen">
+      </editor>
+      <editor
+            class="uimodel.editor.LeuGenEditPart"
+            default="false"
+            id="uimodel.editor.LeuGenEditPart"
+            name="LeuGen">
+      </editor>
+      <editor
+            class="uimodel.editor.CmpEditor"
+            default="false"
+            id="uimodel.editor.CmpEditor"
+            name="CmpEditor">
+      </editor>
+   </extension>
+
+</plugin>
