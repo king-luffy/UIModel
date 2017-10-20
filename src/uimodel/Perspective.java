@@ -20,7 +20,7 @@ public class Perspective implements IPerspectiveFactory {
 		layout.addView(OutputExplorerView.ID, IPageLayout.LEFT, 0.2f, editorArea);
 
 		//add bottom view, for console
-		layout.addView(ConsoleView.ID, IPageLayout.BOTTOM, 0.66f, editorArea);
+		layout.addView(ConsoleView.ID, IPageLayout.BOTTOM, 0.75f, editorArea);
 		
 	}
 

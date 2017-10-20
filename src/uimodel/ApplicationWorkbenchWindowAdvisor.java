@@ -55,15 +55,15 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
     	//显示editor
     	try {
 
-    		curIWorkbenchPage.openEditor(
-    				InputManager.getInputModel(SingleBcnGenEditPart.ID),
-    				SingleBcnGenEditPart.ID);
-			curIWorkbenchPage.openEditor(
-					InputManager.getInputModel(BmvfGenEditPart.ID),
-					BmvfGenEditPart.ID);
-			curIWorkbenchPage.openEditor(
-					InputManager.getInputModel(LeuGenEditPart.ID),
-					LeuGenEditPart.ID);
+//    		curIWorkbenchPage.openEditor(
+//    				InputManager.getInputModel(SingleBcnGenEditPart.ID),
+//    				SingleBcnGenEditPart.ID);
+//			curIWorkbenchPage.openEditor(
+//					InputManager.getInputModel(BmvfGenEditPart.ID),
+//					BmvfGenEditPart.ID);
+//			curIWorkbenchPage.openEditor(
+//					InputManager.getInputModel(LeuGenEditPart.ID),
+//					LeuGenEditPart.ID);
 			curIWorkbenchPage.openEditor(
 					InputManager.getCmpInputModel(), 
 					CmpEditor.ID);

@@ -13,6 +13,7 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import uimodel.action.showBottomView.ShowConsoleView;
 import uimodel.action.showLeftView.ShowWindowsExplrorView;
 import uimodel.action.viewChange.ViewBmvfGenAction;
+import uimodel.action.viewChange.ViewCompareDBAction;
 import uimodel.action.viewChange.ViewLeuGenAction;
 import uimodel.action.viewChange.ViewSingleBcnGenAction;
 
@@ -31,9 +32,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	// when fillActionBars is called with FILL_PROXY.
 
 	private IWorkbenchAction exitAction;
-	private ViewSingleBcnGenAction viewSingleBcnGenAction;
-	private ViewBmvfGenAction viewBmvfGenAction;
-	private ViewLeuGenAction viewLeuGenAction;
+//	private ViewSingleBcnGenAction viewSingleBcnGenAction;
+//	private ViewBmvfGenAction viewBmvfGenAction;
+//	private ViewLeuGenAction viewLeuGenAction;
+	private ViewCompareDBAction viewCompareDBAction;
 	private ShowWindowsExplrorView showWindowsExplrorView;
 	private ShowConsoleView showConsoleView;
 	
@@ -46,14 +48,17 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         register(exitAction);
 
 
-        viewSingleBcnGenAction = new ViewSingleBcnGenAction("Single Beacon Gen View", window);
-        register(viewSingleBcnGenAction);
-
-        viewBmvfGenAction= new ViewBmvfGenAction("Bmvf Gen View", window);
-        register(viewBmvfGenAction);
-
-        viewLeuGenAction = new  ViewLeuGenAction("Leu Gen View", window);
-        register(viewLeuGenAction);
+//        viewSingleBcnGenAction = new ViewSingleBcnGenAction("Single Beacon Gen View", window);
+//        register(viewSingleBcnGenAction);
+//
+//        viewBmvfGenAction= new ViewBmvfGenAction("Bmvf Gen View", window);
+//        register(viewBmvfGenAction);
+//
+//        viewLeuGenAction = new  ViewLeuGenAction("Leu Gen View", window);
+//        register(viewLeuGenAction);
+        
+        viewCompareDBAction = new ViewCompareDBAction("Comare DB View", window);
+        register(viewCompareDBAction);
 
         showWindowsExplrorView = new ShowWindowsExplrorView("Show Window View", window);
         register(showWindowsExplrorView);
@@ -76,9 +81,10 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         menuBar.add(layoutMenu);
 
         fileMenu.add(exitAction);
-        viewMenu.add(viewSingleBcnGenAction);
-        viewMenu.add(viewBmvfGenAction);
-        viewMenu.add(viewLeuGenAction);
+//        viewMenu.add(viewSingleBcnGenAction);
+//        viewMenu.add(viewBmvfGenAction);
+//        viewMenu.add(viewLeuGenAction);
+        viewMenu.add(viewCompareDBAction);
         viewMenu.add(new Separator());
         viewMenu.add(showWindowsExplrorView);
         viewMenu.add(showConsoleView);
