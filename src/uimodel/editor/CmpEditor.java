@@ -1,6 +1,11 @@
 package uimodel.editor;
 
+import java.util.Date;
+
+import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -9,12 +14,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import controller.CompareController;
+import service.po.DBConfig;
 import uimodel.editor.cmp.InputModelCmp;
 import uimodel.editor.layout.MaginLayout;
 
 public class CmpEditor extends EditPartCmpBase{
 
 	public final static String ID= CmpEditor.class.getName();
+	
+	public final static String IP1="172.16.7.132";
+	public final static String IP2="172.16.7.132";
+	public final static String DB_NAME1="dinning";
+	public final static String DB_NAME2="dinning_test";
+	public final static String USER_NAME="sa";
+	public final static String PSW="kingking";
 	
 	@Override
 	public String getPartName() {
@@ -49,8 +63,8 @@ public class CmpEditor extends EditPartCmpBase{
 			//第一行ip
 			Label label = new Label(vh1stRowLeftRow1, SWT.NONE);
 			label.setText("IP  :");
-			Text textBox = new Text(vh1stRowLeftRow1, SWT.BORDER);
-			textBox.setText("172.16.7.100");
+			final Text textBox = new Text(vh1stRowLeftRow1, SWT.BORDER);
+			textBox.setText(IP1);
 			GridData textBoxData = new GridData(SWT.LEFT, SWT.BOTTOM, true, false);
 			textBoxData.widthHint = 400;
 			textBoxData.heightHint = 20;
@@ -59,19 +73,22 @@ public class CmpEditor extends EditPartCmpBase{
 			//第一行db name
 			Label label2 = new Label(vh1stRowLeftRow1, SWT.NONE);
 			label2.setText("DBName  :");
-			Text textBox2 = new Text(vh1stRowLeftRow1, SWT.BORDER);
+			final Text textBox2 = new Text(vh1stRowLeftRow1, SWT.BORDER);
+			textBox2.setText(DB_NAME1);
 			textBox2.setLayoutData(textBoxData);
 			
 			//第二行user name
 			Label label3 = new Label(vh1stRowLeftRow2, SWT.NONE);
 			label3.setText("User:");
-			Text textBox3 = new Text(vh1stRowLeftRow2, SWT.BORDER);
+			final Text textBox3 = new Text(vh1stRowLeftRow2, SWT.BORDER);
+			textBox3.setText(USER_NAME);
 			textBox3.setLayoutData(textBoxData);
 			
 			//第二行password
 			Label label4 = new Label(vh1stRowLeftRow2, SWT.NONE);
 			label4.setText("Password:");
-			Text textBox4 = new Text(vh1stRowLeftRow2, SWT.BORDER);
+			final Text textBox4 = new Text(vh1stRowLeftRow2, SWT.BORDER);
+			textBox4.setText(PSW);
 			textBox4.setLayoutData(textBoxData);
 		//}
 		//{
@@ -86,26 +103,29 @@ public class CmpEditor extends EditPartCmpBase{
 			//第一行ip
 			Label label5 = new Label(vh1stRowRightRow1, SWT.NONE);
 			label5.setText("IP  :");
-			Text textBox5 = new Text(vh1stRowRightRow1, SWT.BORDER);
-			textBox5.setText("172.16.7.100");
+			final Text textBox5 = new Text(vh1stRowRightRow1, SWT.BORDER);
+			textBox5.setText(IP2);
 			textBox5.setLayoutData(textBoxData);
 			
 			//第一行db name
 			Label label6 = new Label(vh1stRowRightRow1, SWT.NONE);
 			label6.setText("DBName  :");
-			Text textBox6 = new Text(vh1stRowRightRow1, SWT.BORDER);
+			final Text textBox6 = new Text(vh1stRowRightRow1, SWT.BORDER);
+			textBox6.setText(DB_NAME2);
 			textBox6.setLayoutData(textBoxData);
 			
 			//第二行user name
 			Label label7 = new Label(vh1stRowRightRow2, SWT.NONE);
 			label7.setText("User:");
-			Text textBox7 = new Text(vh1stRowRightRow2, SWT.BORDER);
+			final Text textBox7 = new Text(vh1stRowRightRow2, SWT.BORDER);
+			textBox7.setText(USER_NAME);
 			textBox7.setLayoutData(textBoxData);
 			
 			//第二行password
 			Label label8 = new Label(vh1stRowRightRow2, SWT.NONE);
 			label8.setText("Password:");
-			Text textBox8 = new Text(vh1stRowRightRow2, SWT.BORDER);
+			final Text textBox8 = new Text(vh1stRowRightRow2, SWT.BORDER);
+			textBox8.setText(PSW);
 			textBox8.setLayoutData(textBoxData);
 		//}
 		
@@ -126,10 +146,10 @@ public class CmpEditor extends EditPartCmpBase{
 		final Composite[] hChildCompositesFor3rdRow=
 				MaginLayout.createHorizontalSplitComposite(childComposites[2], new int[]{50});
 		hChildCompositesFor3rdRow[0].setLayout(fillLayout);
-		Text textLeft = new Text(hChildCompositesFor3rdRow[0], 
+		final Text textLeft = new Text(hChildCompositesFor3rdRow[0], 
 				SWT.V_SCROLL | SWT.BORDER | SWT.WRAP | SWT.H_SCROLL);
 		hChildCompositesFor3rdRow[1].setLayout(fillLayout);
-		Text textRight = new Text(hChildCompositesFor3rdRow[1], 
+		final Text textRight = new Text(hChildCompositesFor3rdRow[1], 
 				SWT.V_SCROLL | SWT.BORDER | SWT.WRAP | SWT.H_SCROLL);
 
 		//在第四个composite中添加file dialog
@@ -159,6 +179,43 @@ public class CmpEditor extends EditPartCmpBase{
 		childComposites[4].setLayout(new GridLayout());
 		runButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
+		
+		{
+			//添加读取事件
+			leftReadDBButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent arg0) {
+					DBConfig dbConfig = new DBConfig();
+					dbConfig.setDbIp(textBox.getText());
+					dbConfig.setDbName(textBox2.getText());
+					dbConfig.setUserName(textBox3.getText());
+					dbConfig.setUserPwd(textBox4.getText());
+					
+					textLeft.setText(CompareController.fetchDBInfo(dbConfig));
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+			
+			rightReadDBButton.addSelectionListener(new SelectionListener() {
+				
+				@Override
+				public void widgetSelected(SelectionEvent arg0) {
+					textRight.append(new Date().toString());
+				}
+				
+				@Override
+				public void widgetDefaultSelected(SelectionEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+		}
 	}
 
 

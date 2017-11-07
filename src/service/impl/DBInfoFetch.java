@@ -6,7 +6,6 @@ import service.po.DBTableFieldPo;
 import service.po.DBTablePo;
 import service.po.PosPo;
 import service.util.SqlSessionHelper;
-import service.util.SqlSessionUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.log4j.Logger;

@@ -12,7 +12,8 @@ public class DBConfig {
     private String userName = "";
     private String userPwd = "";
     private String url ="";
-    private String port = "";
+    private String port = "1433";
+    private String driver = "net.sourceforge.jtds.jdbc.Driver";
 
     public String getDbIp() {
         return dbIp;
@@ -61,6 +62,14 @@ public class DBConfig {
     public void setPort(String port) {
         this.port = port;
     }
+
+	public String getDriver() {
+		return driver;
+	}
+
+	public void setDriver(String driver) {
+		this.driver = driver;
+	}
     public static String formateUrl(DBConfig config){
         return String.format(URL_FROMAT, config.getDbIp(), config.getPort(), config.getDbName());
     }
@@ -75,4 +84,5 @@ public class DBConfig {
         sb.append('}');
         return sb.toString();
     }
+
 }
