@@ -6,7 +6,11 @@ import java.io.Serializable;
  * Created by king_luffy on 2017/9/6.
  */
 public class DBPo implements Serializable{
-    String posId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -8651040611037716574L;
+	String posId;
     String version;
     String dbName;
     String dbId;

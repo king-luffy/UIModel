@@ -1,9 +1,11 @@
 package service.po;
 
+import java.io.Serializable;
+
 /**
  * Created by king_luffy on 2017/8/2.
  */
-public class DBConfig {
+public class DBConfig implements Serializable{
 
     private static final String URL_FROMAT = "jdbc:jtds:sqlserver://%s:%s;DatabaseName=%s";
 

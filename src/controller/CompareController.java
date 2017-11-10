@@ -6,13 +6,16 @@ import org.apache.log4j.Logger;
 
 import com.alibaba.fastjson.JSON;
 
+import service.ex.DBCompareException;
+import service.impl.DBComparer;
 import service.impl.DBInfoFetch;
 import service.po.DBConfig;
 import service.po.PosPo;
+import service.po.dbcompare.PosPoCmp;
 
 public class CompareController {
-
-	public static String fetchDBInfo(DBConfig dbConfig){
+	private static Logger logger = Logger.getLogger(CompareController.class);
+	public static PosPo fetchDBInfo(DBConfig dbConfig){
 		
 		DBInfoFetch fetcher = new DBInfoFetch();
 		Properties properties = new Properties();
@@ -24,7 +27,21 @@ public class CompareController {
 		
 		PosPo posPo = fetcher.fetchDBInfo(properties);
 		
-		return JSON.toJSONString(posPo,true);
+		return posPo;
+	}
+	
+	public static String toJSONString(Object obj){
+		return JSON.toJSONString(obj,true);
+	}
+	
+	public static PosPoCmp cmpDB(PosPo basePos,PosPo cmpPos){
+		DBComparer dbComparer = new DBComparer();
+		try {
+			return dbComparer.dbCompare(basePos, cmpPos);
+		} catch (DBCompareException e) {
+			logger.error(e);
+		}
+		return null;
 	}
 	
 	public static void main(String[] args) {

@@ -8,7 +8,11 @@ import java.util.Map;
  * Created by king_luffy on 2017/9/6.
  */
 public class PosPo implements Serializable{
-    private String posId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -6160362116061620527L;
+	private String posId;
     private String posName;
     private Map<String,DBTablePo> dbTablePoMap = new HashMap<>();//Key : TableName, Value : DBTablePo
 

@@ -66,7 +66,7 @@ public class SerializerUtil {
         File file = new File(path);
 
         if(file==null || !file.exists()){
-            logger.error("File "+path+" not exist!");
+            logger.info("File "+path+" not exist!");
             return null;
         }
         ObjectInputStream in = null;

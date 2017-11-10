@@ -9,7 +9,12 @@ import java.util.Map;
  */
 public class PosPoCmp implements Serializable {
 
-    public PosPoCmp(){
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7330485100932809041L;
+
+	public PosPoCmp(){
         setTitle("");
         setMatchPercentBase(0.0);
         setDbBaseTablePoCmpMap(new HashMap<String, DBTablePoCmp>());

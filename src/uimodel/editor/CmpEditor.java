@@ -1,27 +1,35 @@
 package uimodel.editor;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 import controller.CompareController;
+import service.po.ConfigInfo;
 import service.po.DBConfig;
+import service.po.PosPo;
+import service.po.dbcompare.PosPoCmp;
+import service.util.SerializerUtil;
 import uimodel.editor.cmp.InputModelCmp;
 import uimodel.editor.layout.MaginLayout;
 
 public class CmpEditor extends EditPartCmpBase{
 
 	public final static String ID= CmpEditor.class.getName();
+	private static Logger logger = Logger.getLogger(CmpEditor.class);
+	private final static String LOCAL_RECORD_FILE_NAME = "ConfigInfo";
 	
 	public final static String IP1="172.16.7.132";
 	public final static String IP2="172.16.7.132";
@@ -30,18 +38,28 @@ public class CmpEditor extends EditPartCmpBase{
 	public final static String USER_NAME="sa";
 	public final static String PSW="kingking";
 	
+	public static PosPo basePo = null;
+	public static PosPo cmpPo = null;
+	
 	@Override
 	public String getPartName() {
 		return "Compare DB";
 	}
 
+	private Text textBox;
+	private Text textBox2;
+	private Text textBox3;
+	private Text textBox4;
+	private StyledText textLeft;
+	private Button leftReadDBButton;
+	
 	@Override
 	public void createPartControl(Composite parent) {
 		InputModelCmp inputModel =(InputModelCmp)this.getEditorInput();
 
 		//创建带margin的composite
 		final Composite newParent = MaginLayout.createMarginComposite(parent, 10);
-
+		
 		//在上一级容器中再创建五个上下排列的容器
 		final Composite[] childComposites =
 				MaginLayout.createVerticalSplitComposite(newParent, new int[]{15,23,84,92});
@@ -61,7 +79,8 @@ public class CmpEditor extends EditPartCmpBase{
 			vh1stRowLeftRow2.setLayout(gridLayout);
 
 			//第一行ip
-			Label label = new Label(vh1stRowLeftRow1, SWT.NONE);
+			final Label label = new Label(vh1stRowLeftRow1, SWT.NONE);
+			
 			label.setText("IP  :");
 			final Text textBox = new Text(vh1stRowLeftRow1, SWT.BORDER);
 			textBox.setText(IP1);
@@ -71,14 +90,14 @@ public class CmpEditor extends EditPartCmpBase{
 			textBox.setLayoutData(textBoxData);
 			
 			//第一行db name
-			Label label2 = new Label(vh1stRowLeftRow1, SWT.NONE);
+			final Label label2 = new Label(vh1stRowLeftRow1, SWT.NONE);
 			label2.setText("DBName  :");
 			final Text textBox2 = new Text(vh1stRowLeftRow1, SWT.BORDER);
 			textBox2.setText(DB_NAME1);
 			textBox2.setLayoutData(textBoxData);
 			
 			//第二行user name
-			Label label3 = new Label(vh1stRowLeftRow2, SWT.NONE);
+			final Label label3 = new Label(vh1stRowLeftRow2, SWT.NONE);
 			label3.setText("User:");
 			final Text textBox3 = new Text(vh1stRowLeftRow2, SWT.BORDER);
 			textBox3.setText(USER_NAME);
@@ -146,10 +165,10 @@ public class CmpEditor extends EditPartCmpBase{
 		final Composite[] hChildCompositesFor3rdRow=
 				MaginLayout.createHorizontalSplitComposite(childComposites[2], new int[]{50});
 		hChildCompositesFor3rdRow[0].setLayout(fillLayout);
-		final Text textLeft = new Text(hChildCompositesFor3rdRow[0], 
+		final StyledText textLeft = new StyledText(hChildCompositesFor3rdRow[0], 
 				SWT.V_SCROLL | SWT.BORDER | SWT.WRAP | SWT.H_SCROLL);
 		hChildCompositesFor3rdRow[1].setLayout(fillLayout);
-		final Text textRight = new Text(hChildCompositesFor3rdRow[1], 
+		final StyledText textRight = new StyledText(hChildCompositesFor3rdRow[1], 
 				SWT.V_SCROLL | SWT.BORDER | SWT.WRAP | SWT.H_SCROLL);
 
 		//在第四个composite中添加file dialog
@@ -173,26 +192,53 @@ public class CmpEditor extends EditPartCmpBase{
 		fileDialogButton.setLayoutData(fileDialogButtonData);
 
 		//在第五个composite中添加run button
-		Button runButton = new Button(childComposites[4], SWT.NONE);
+		final Button runButton = new Button(childComposites[4], SWT.NONE);
 		runButton.setText("Run");
 		//runButton.setBounds(0, 0, 40, 20);
 		childComposites[4].setLayout(new GridLayout());
 		runButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		
+		//组件成员变量记录
+		this.textBox = textBox;
+		this.textBox2 = textBox2;
+		this.textBox3 = textBox3;
+		this.textBox4 = textBox4;
+		this.leftReadDBButton = leftReadDBButton;
+		this.textLeft = textLeft;
+		
+		{
+			//组件初始化,从本地读取配置文件并填写空间数据
+			ConfigInfo configInfo = SerializerUtil.deserialization(LOCAL_RECORD_FILE_NAME);
+			if(configInfo!=null){
+				DBConfig baseDBConfig = configInfo.getBaseConfig();
+				if(baseDBConfig!=null){
+					textBox.setText(baseDBConfig.getDbIp());
+					textBox2.setText(baseDBConfig.getDbName());
+					textBox3.setText(baseDBConfig.getUserName());
+					textBox4.setText(baseDBConfig.getUserPwd());
+				}
+				DBConfig cmpDBConfig = configInfo.getCmpConfig();
+				if(cmpDBConfig!=null){
+					textBox5.setText(cmpDBConfig.getDbIp());
+					textBox6.setText(cmpDBConfig.getDbName());
+					textBox7.setText(cmpDBConfig.getUserName());
+					textBox8.setText(cmpDBConfig.getUserPwd());
+				}
+			}
+		}
 		
 		{
 			//添加读取事件
-			leftReadDBButton.addSelectionListener(new SelectionListener() {
+			addLeftTextReadEvent();
+			
+			rightReadDBButton.addSelectionListener(new SelectionListener() {
 				
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
-					DBConfig dbConfig = new DBConfig();
-					dbConfig.setDbIp(textBox.getText());
-					dbConfig.setDbName(textBox2.getText());
-					dbConfig.setUserName(textBox3.getText());
-					dbConfig.setUserPwd(textBox4.getText());
-					
-					textLeft.setText(CompareController.fetchDBInfo(dbConfig));
+					DBConfig dbConfig = getDBConfig(textBox5.getText(),textBox6.getText(), 
+							textBox7.getText(),textBox8.getText());
+					cmpPo = CompareController.fetchDBInfo(dbConfig);
+					textRight.setText(CompareController.toJSONString(cmpPo));
 				}
 				
 				@Override
@@ -202,11 +248,21 @@ public class CmpEditor extends EditPartCmpBase{
 				}
 			});
 			
-			rightReadDBButton.addSelectionListener(new SelectionListener() {
+			//比较按钮
+			runButton.addSelectionListener(new SelectionListener() {
 				
 				@Override
 				public void widgetSelected(SelectionEvent arg0) {
-					textRight.append(new Date().toString());
+//					if(basePo==null || cmpPo==null){
+//						logger.error("No compare date!");
+//						return;
+//					}
+//					PosPoCmp posPoCmp=CompareController.cmpDB(basePo, cmpPo);
+					
+					textLeft.append("Test ");
+					textLeft.setForeground(new Color(Display.getCurrent(), new RGB(150,50,50)));
+					textLeft.append("WaHAHA ");
+					//textLeft.setForeground(new Color(Display.getCurrent(), new RGB(50,50,50)));
 				}
 				
 				@Override
@@ -215,8 +271,34 @@ public class CmpEditor extends EditPartCmpBase{
 					
 				}
 			});
+			
 		}
 	}
-
+	private DBConfig getDBConfig(String ip,String dbName,String userName,String psw){
+		DBConfig dbConfig = new DBConfig();
+		dbConfig.setDbIp(ip);
+		dbConfig.setDbName(dbName);
+		dbConfig.setUserName(userName);
+		dbConfig.setUserPwd(psw);
+		return dbConfig;
+	}
+	private void addLeftTextReadEvent(){
+		leftReadDBButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				DBConfig dbConfig = getDBConfig(textBox.getText(),textBox2.getText(), 
+								textBox3.getText(),textBox4.getText());
+				basePo = CompareController.fetchDBInfo(dbConfig);
+				textLeft.setText(CompareController.toJSONString(basePo));
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
 
 }
