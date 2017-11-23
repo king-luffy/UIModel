@@ -2,11 +2,10 @@ package uimodel.editor;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -16,20 +15,24 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+import com.alibaba.fastjson.JSON;
+
 import controller.CompareController;
+import service.impl.SaveService;
 import service.po.ConfigInfo;
 import service.po.DBConfig;
 import service.po.PosPo;
+import service.po.dbcompare.DBTableFieldPoCmp;
+import service.po.dbcompare.DBTablePoCmp;
 import service.po.dbcompare.PosPoCmp;
-import service.util.SerializerUtil;
 import uimodel.editor.cmp.InputModelCmp;
 import uimodel.editor.layout.MaginLayout;
+import uimodel.views.ConsoleView;
 
 public class CmpEditor extends EditPartCmpBase{
 
 	public final static String ID= CmpEditor.class.getName();
 	private static Logger logger = Logger.getLogger(CmpEditor.class);
-	private final static String LOCAL_RECORD_FILE_NAME = "ConfigInfo";
 	
 	public final static String IP1="172.16.7.132";
 	public final static String IP2="172.16.7.132";
@@ -38,6 +41,7 @@ public class CmpEditor extends EditPartCmpBase{
 	public final static String USER_NAME="sa";
 	public final static String PSW="kingking";
 	
+	public static ConfigInfo configInfo = null;
 	public static PosPo basePo = null;
 	public static PosPo cmpPo = null;
 	
@@ -52,6 +56,15 @@ public class CmpEditor extends EditPartCmpBase{
 	private Text textBox4;
 	private StyledText textLeft;
 	private Button leftReadDBButton;
+	
+	private Text textBox5;
+	private Text textBox6;
+	private Text textBox7;
+	private Text textBox8;
+	private StyledText textRight;
+	private Button rightReadDBButton;
+	
+	private Button runButton;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -205,73 +218,49 @@ public class CmpEditor extends EditPartCmpBase{
 		this.textBox4 = textBox4;
 		this.leftReadDBButton = leftReadDBButton;
 		this.textLeft = textLeft;
+		this.textBox5 = textBox5;
+		this.textBox6 = textBox6;
+		this.textBox7 = textBox7;
+		this.textBox8 = textBox8;
+		this.rightReadDBButton = rightReadDBButton;
+		this.textRight = textRight;
+		this.runButton = runButton;
 		
-		{
-			//组件初始化,从本地读取配置文件并填写空间数据
-			ConfigInfo configInfo = SerializerUtil.deserialization(LOCAL_RECORD_FILE_NAME);
-			if(configInfo!=null){
-				DBConfig baseDBConfig = configInfo.getBaseConfig();
-				if(baseDBConfig!=null){
-					textBox.setText(baseDBConfig.getDbIp());
-					textBox2.setText(baseDBConfig.getDbName());
-					textBox3.setText(baseDBConfig.getUserName());
-					textBox4.setText(baseDBConfig.getUserPwd());
-				}
-				DBConfig cmpDBConfig = configInfo.getCmpConfig();
-				if(cmpDBConfig!=null){
-					textBox5.setText(cmpDBConfig.getDbIp());
-					textBox6.setText(cmpDBConfig.getDbName());
-					textBox7.setText(cmpDBConfig.getUserName());
-					textBox8.setText(cmpDBConfig.getUserPwd());
-				}
+		//组件初始化
+		initComponent();
+		
+		//添加读取事件
+		addLeftTextReadEvent();
+		addRightTextReadEvent();
+		addCmpEvent();
+	
+	}
+	private void initComponent(){
+		//组件初始化,从本地读取配置文件并填写空间数据
+		ConfigInfo configInfo = SaveService.loadConfig();
+		if(configInfo!=null){
+			DBConfig baseDBConfig = configInfo.getBaseConfig();
+			if(baseDBConfig!=null){
+				textBox.setText(baseDBConfig.getDbIp());
+				textBox2.setText(baseDBConfig.getDbName());
+				textBox3.setText(baseDBConfig.getUserName());
+				textBox4.setText(baseDBConfig.getUserPwd());
 			}
-		}
-		
-		{
-			//添加读取事件
-			addLeftTextReadEvent();
-			
-			rightReadDBButton.addSelectionListener(new SelectionListener() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent arg0) {
-					DBConfig dbConfig = getDBConfig(textBox5.getText(),textBox6.getText(), 
-							textBox7.getText(),textBox8.getText());
-					cmpPo = CompareController.fetchDBInfo(dbConfig);
-					textRight.setText(CompareController.toJSONString(cmpPo));
-				}
-				
-				@Override
-				public void widgetDefaultSelected(SelectionEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-			});
-			
-			//比较按钮
-			runButton.addSelectionListener(new SelectionListener() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent arg0) {
-//					if(basePo==null || cmpPo==null){
-//						logger.error("No compare date!");
-//						return;
-//					}
-//					PosPoCmp posPoCmp=CompareController.cmpDB(basePo, cmpPo);
-					
-					textLeft.append("Test ");
-					textLeft.setForeground(new Color(Display.getCurrent(), new RGB(150,50,50)));
-					textLeft.append("WaHAHA ");
-					//textLeft.setForeground(new Color(Display.getCurrent(), new RGB(50,50,50)));
-				}
-				
-				@Override
-				public void widgetDefaultSelected(SelectionEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-			});
-			
+			basePo = configInfo.getBasePo();
+			if(basePo!=null){
+				textLeft.setText(JSON.toJSONString(basePo,true));
+			}
+			DBConfig cmpDBConfig = configInfo.getCmpConfig();
+			if(cmpDBConfig!=null){
+				textBox5.setText(cmpDBConfig.getDbIp());
+				textBox6.setText(cmpDBConfig.getDbName());
+				textBox7.setText(cmpDBConfig.getUserName());
+				textBox8.setText(cmpDBConfig.getUserPwd());
+			}
+			cmpPo = configInfo.getCmpPo();
+			if(cmpPo!=null){
+				textRight.setText(JSON.toJSONString(cmpPo,true));
+			}
 		}
 	}
 	private DBConfig getDBConfig(String ip,String dbName,String userName,String psw){
@@ -291,6 +280,8 @@ public class CmpEditor extends EditPartCmpBase{
 								textBox3.getText(),textBox4.getText());
 				basePo = CompareController.fetchDBInfo(dbConfig);
 				textLeft.setText(CompareController.toJSONString(basePo));
+				
+				updateConfigInfo(basePo,dbConfig,true);
 			}
 			
 			@Override
@@ -299,6 +290,168 @@ public class CmpEditor extends EditPartCmpBase{
 				
 			}
 		});
+	}
+	private void addRightTextReadEvent(){
+		rightReadDBButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				DBConfig dbConfig = getDBConfig(textBox5.getText(),textBox6.getText(), 
+						textBox7.getText(),textBox8.getText());
+				cmpPo = CompareController.fetchDBInfo(dbConfig);
+				textRight.setText(CompareController.toJSONString(cmpPo));
+				
+				updateConfigInfo(cmpPo,dbConfig, false);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	private void addCmpEvent(){
+		//比较按钮
+		runButton.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(basePo==null || cmpPo==null){
+					ConsoleView.append("No compare date!");
+					return;
+				}
+				PosPoCmp posPoCmp=CompareController.cmpDB(basePo, cmpPo);
+				
+				//打印base情况
+				textLeft.setText("");
+				int sumLen=0;
+				int lineLen;
+				int matchTextLen;
+				int unmatchTextLen;
+				StringBuilder matchSb;
+				StringBuilder unmatchSb;
+				for (DBTablePoCmp table : posPoCmp.getDbBaseTablePoCmpMap().values()) {
+					matchTextLen = 0;
+					unmatchTextLen = 0;
+					matchSb = new StringBuilder();
+					unmatchSb = new StringBuilder();
+					matchSb.append(table.getDbTablePo().getTableName());
+					matchSb.append(" : ");
+					for (DBTableFieldPoCmp field : table.getDbTableFieldPoCmpMap().values()) {
+						if(field.getMatch()){
+							matchSb.append(field.getDbTableFieldPo().getFieldName());
+							matchSb.append(",");
+						}else{
+							unmatchSb.append(field.getDbTableFieldPo().getFieldName());
+							unmatchSb.append(",");
+						}
+					}
+					matchTextLen = matchSb.length();
+					unmatchTextLen = unmatchSb.length();
+					
+					matchSb.append(unmatchSb);
+					matchSb.append("\n");
+					
+					lineLen = matchSb.length();
+					
+					//添加行
+					textLeft.append(matchSb.toString());
+					
+					//设置行颜色
+					StyleRange styleRange = new StyleRange();
+					styleRange.start=sumLen;
+					styleRange.length=matchTextLen;
+					styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
+					textLeft.setStyleRange(styleRange);
+					styleRange = new StyleRange();
+					styleRange.start=sumLen+matchTextLen;
+					styleRange.length=unmatchTextLen;
+					styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+					textLeft.setStyleRange(styleRange);
+					
+					//更新总行数
+					sumLen+=lineLen;
+				}
+				
+				//打印Target情况
+				sumLen = 0;
+				textRight.setText("");
+				for (DBTablePoCmp table : posPoCmp.getDbCmpTablePoCmpMap().values()) {
+					matchTextLen = 0;
+					unmatchTextLen = 0;
+					matchSb = new StringBuilder();
+					unmatchSb = new StringBuilder();
+					matchSb.append(table.getDbTablePo().getTableName());
+					matchSb.append(" : ");
+					for (DBTableFieldPoCmp field : table.getDbTableFieldPoCmpMap().values()) {
+						if(field.getMatch()){
+							matchSb.append(field.getDbTableFieldPo().getFieldName());
+							matchSb.append(",");
+						}else{
+							unmatchSb.append(field.getDbTableFieldPo().getFieldName());
+							unmatchSb.append(",");
+						}
+					}
+					matchTextLen = matchSb.length();
+					unmatchTextLen = unmatchSb.length();
+					
+					matchSb.append(unmatchSb);
+					matchSb.append("\n");
+					
+					lineLen = matchSb.length();
+					
+					//添加行
+					textRight.append(matchSb.toString());
+					
+					//设置行颜色
+					StyleRange styleRange = new StyleRange();
+					styleRange.start=sumLen;
+					styleRange.length=matchTextLen;
+					styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_BLUE);
+					textRight.setStyleRange(styleRange);
+					styleRange = new StyleRange();
+					styleRange.start=sumLen+matchTextLen;
+					styleRange.length=unmatchTextLen;
+					styleRange.foreground = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+					textRight.setStyleRange(styleRange);
+					
+					//更新总行数
+					sumLen+=lineLen;
+				}
+				
+				ConsoleView.append("基本数据库比对相同百分比: "+posPoCmp.getMatchPercentBase());
+				ConsoleView.append("目标数据库比对相同百分比: "+posPoCmp.getMatchPercentCmp());
+			
+				ConsoleView.append("Compare end!");
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	private void updateConfigInfo(PosPo posPo,DBConfig dbConfig,boolean isBase){
+		if(configInfo==null){
+			configInfo = new ConfigInfo();
+		}
+		if(isBase){
+			configInfo.setBaseConfig(dbConfig);
+			configInfo.setBasePo(posPo);
+		}else{
+			configInfo.setCmpConfig(dbConfig);
+			configInfo.setCmpPo(posPo);
+		}
+		
+		updateConfigInfo(configInfo);
+	}
+	
+	private void updateConfigInfo(ConfigInfo configInfo){
+		CmpEditor.configInfo = configInfo;
+		SaveService.saveConfig(configInfo);
 	}
 
 }

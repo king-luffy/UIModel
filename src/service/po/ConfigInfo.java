@@ -13,6 +13,8 @@ public class ConfigInfo implements Serializable{
 	private DBConfig baseConfig;
 	private DBConfig cmpConfig;
 	private PosPoCmp poCmp;
+	private PosPo basePo;
+	private PosPo cmpPo;
 	public DBConfig getBaseConfig() {
 		return baseConfig;
 	}
@@ -30,6 +32,18 @@ public class ConfigInfo implements Serializable{
 	}
 	public void setPoCmp(PosPoCmp poCmp) {
 		this.poCmp = poCmp;
+	}
+	public PosPo getBasePo() {
+		return basePo;
+	}
+	public void setBasePo(PosPo basePo) {
+		this.basePo = basePo;
+	}
+	public PosPo getCmpPo() {
+		return cmpPo;
+	}
+	public void setCmpPo(PosPo cmpPo) {
+		this.cmpPo = cmpPo;
 	}
 	
 	

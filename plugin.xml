@@ -59,5 +59,29 @@
             name="CmpEditor">
       </editor>
    </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="UIModel.application"
+            name="DBComparer">
+         <property
+               name="appName"
+               value="DBComparer">
+         </property>
+      </product>
+   </extension>
+   <extension
+         id="DBComparer"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="UIModel.application"
+            name="DBComparer">
+         <property
+               name="appName"
+               value="DBComparer">
+         </property>
+      </product>
+   </extension>
 
 </plugin>
